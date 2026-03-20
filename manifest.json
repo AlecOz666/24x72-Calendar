@@ -1,0 +1,21 @@
+{
+  "name": "24x72",
+  "short_name": "24x72",
+  "start_url": "/24x72/",
+  "display": "standalone",
+  "background_color": "#0d0d10",
+  "theme_color": "#e8c547",
+  "description": "Calendario 2026 con cadena de 4 días",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/e8c547/000000?text=24x72",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/e8c547/000000?text=24x72",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

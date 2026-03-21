@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24x72</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d10;
+    --surface: #16161e;
+    --surface2: #1e1e2a;
+    --border: #28283c;
+    --accent: #e8c547;
+    --red: #ff6b6b;
+    --blue: #6bceff;
+    --text: #f0eee8;
+    --muted: #6a6a88;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(232,197,71,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,197,71,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 44px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .title-block h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(60px, 9vw, 112px);
+    line-height: 0.88;
+    letter-spacing: 2px;
+  }
+  .title-block h1 span { color: var(--accent); display: block; }
+  .title-block p {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* LEGEND BOX */
+  .legend-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 22px;
+    min-width: 210px;
+  }
+  .legend-box h3 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .legend-item:last-child { margin-bottom: 0; }
+  .ldot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .ldot.origin { background: var(--accent); }
+  .ldot.chain  { background: var(--red); }
+
+  /* YEAR GRID */
+  .year-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(276px, 1fr));
+    gap: 20px;
+  }
+
+  /* MONTH CARD */
+  .month-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    transition: border-color 0.25s;
+  }
+  .month-card:hover { border-color: rgba(232,197,71,0.25); }
+
+  .month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .month-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+  }
+
+  .btn-clear-month {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .btn-clear-month:hover { border-color: var(--red); color: var(--red); }
+
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 4px;
+  }
+  .wday {
+    text-align: center;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    padding: 3px 0;
+  }
+
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  /* DAY CELL */
+  .day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    font-size: 12.5px;
+    font-weight: 300;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.13s ease;
+    user-select: none;
+    color: var(--text);
+  }
+  .day:hover:not(.empty) { background: var(--surface2); transform: scale(1.12); }
+  .day.empty { cursor: default; pointer-events: none; }
+
+  .day.today { color: var(--blue); font-weight: 600; }
+  .day.today::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; left: 50%;
+    transform: translateX(-50%);
+    width: 3px; height: 3px;
+    background: var(--blue);
+    border-radius: 50%;
+  }
+
+  /* origin */
+  .day.origin {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    border-radius: 9px;
+  }
+  .day.origin:hover { background: #f5d45a; transform: scale(1.1); }
+
+  /* chain */
+  .day.chain {
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 9px;
+    animation: glow 2.4s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(255,107,107,0); }
+  }
+
+  /* tooltip for chain days */
+  .day.chain::before {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a26;
+    border: 1px solid var(--red);
+    color: #ff9f9f;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s;
+    z-index: 20;
+  }
+  .day.chain:hover::before { opacity: 1; }
+
+  /* origin that is also chain */
+  .day.origin.chain {
+    background: linear-gradient(135deg, var(--accent) 48%, var(--red) 52%);
+    color: #000;
+    animation: none;
+    box-shadow: none;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    margin-top: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 26px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; flex-direction: column; gap: 3px; }
+  .stat-n { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1; }
+  .stat-n.y { color: var(--accent); }
+  .stat-n.r { color: var(--red); }
+  .stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .sdiv { width: 1px; height: 38px; background: var(--border); }
+
+  .btn-clear-all {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-clear-all:hover { border-color: var(--red); color: var(--red); }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 26px; right: 26px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 22px rgba(232,197,71,0.32);
+    transition: all 0.2s;
+    z-index: 200;
+  }
+  .fab:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,197,71,0.45); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+    backdrop-filter: blur(5px);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 34px 38px;
+    width: min(420px, 92vw);
+    transform: translateY(14px) scale(0.98);
+    transition: transform 0.22s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-date {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .modal h2 span { color: var(--accent); }
+  .modal p { font-size: 13px; color: var(--muted); margin-bottom: 22px; line-height: 1.55; }
+
+  .modal-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 11px 14px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 18px;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+
+  .modal-actions { display: flex; gap: 10px; }
+
+  .btn-confirm {
+    flex: 1;
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .btn-confirm:hover { background: #f5d45a; }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-cancel:hover { border-color: var(--red); color: var(--red); }
+
+  @media (max-width: 580px) {
+    .year-grid { grid-template-columns: 1fr; }
+    .stats-bar { gap: 16px; }
+    .btn-clear-all { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-date" id="modalDateLabel">—</div>
+    <h2>NOMBRAR <span>EVENTO</span></h2>
+    <p>¿Cómo quieres llamar a este día y a la cadena que se generará cada 4 días?</p>
+    <input class="modal-input" id="modalInput" type="text" maxlength="30"
+           placeholder="Ej: Revisión, Dosis, Cita médica…" />
+    <div class="modal-actions">
+      <button class="btn-confirm" id="btnConfirm">✓ Confirmar</button>
+      <button class="btn-cancel"  id="btnCancel">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="title-block">
+      <h1>24<span>x72</span></h1>
+      <p>Calendario 2026 · Cadena cada 4 días</p>
+    </div>
+    <div class="legend-box">
+      <h3>Leyenda</h3>
+      <div class="legend-item"><div class="ldot origin"></div>Día origen (marcado)</div>
+      <div class="legend-item"><div class="ldot chain"></div>Cada 4° día en cadena</div>
+    </div>
+  </header>
+
+  <div class="year-grid" id="yearGrid"></div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-n y" id="cntOrigin">0</div>
+      <div class="stat-lbl">Días origen</div>
+    </div>
+    <div class="sdiv"></div>
+    <div class="stat">
+      <div class="stat-n r" id="cntChain">0</div>
+      <div class="stat-lbl">Días en cadena</div>
+    </div>
+    <button class="btn-clear-all" onclick="clearAll()">✕ Limpiar todo el año</button>
+  </div>
+</div>
+
+<button class="fab" onclick="scrollToToday()">→ Hoy</button>
+
+<script>
+  const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const WDAYS  = ['L','M','X','J','V','S','D'];
+
+  // origins: array of { date: "2026-MM-DD", label: "string" }
+  let origins       = JSON.parse(localStorage.getItem('cal2026_v3_origins')  || '[]');
+  // clearedMonths: Set of month indices (0-11) that have been manually cleared
+  let clearedMonths = new Set(JSON.parse(localStorage.getItem('cal2026_cleared') || '[]'));
+
+  const today = new Date();
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth();
+  const todayD = today.getDate();
+
+  let pendingDate = null;
+
+  /* ── Helpers ── */
+  function dateKey(m, d) {
+    return `2026-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+  function daysInMonth(m) { return new Date(2026, m+1, 0).getDate(); }
+  function firstDow(m)    { const d = new Date(2026,m,1).getDay(); return d===0?6:d-1; }
+  function parseKey(key)  {
+    const [,mo,d] = key.split('-').map(Number);
+    return { month: mo-1, day: d };
+  }
+  function friendlyDate(key) {
+    const { month, day } = parseKey(key);
+    return `${day} de ${MONTHS[month]}`;
+  }
+  function save() {
+    localStorage.setItem('cal2026_v3_origins', JSON.stringify(origins));
+    localStorage.setItem('cal2026_cleared',    JSON.stringify([...clearedMonths]));
+  }
+
+  /* ── Build full chain map (ignoring clearedMonths) ── */
+  function buildChainMap() {
+    const map = new Map();
+    origins.forEach(({ date, label }) => {
+      let { month, day } = parseKey(date);
+      while (true) {
+        day += 4;
+        while (month <= 11) {
+          const dim = daysInMonth(month);
+          if (day <= dim) break;
+          day -= dim;
+          month++;
+        }
+        if (month > 11) break;
+        const k = dateKey(month, day);
+        if (!map.has(k)) map.set(k, new Set());
+        map.get(k).add(label);
+      }
+    });
+    return map;
+  }
+
+  function buildOriginMap() {
+    const m = new Map();
+    origins.forEach(o => {
+      if (!m.has(o.date)) m.set(o.date, new Set());
+      m.get(o.date).add(o.label);
+    });
+    return m;
+  }
+
+  /* ── Click on a day ── */
+  function clickDay(monthIdx, dayNum) {
+    const key = dateKey(monthIdx, dayNum);
+    const idx = origins.findIndex(o => o.date === key);
+    if (idx !== -1) {
+      origins.splice(idx, 1);
+      // If there are no more origins whose chain touches this month,
+      // also remove it from clearedMonths (nothing to clear)
+      save(); render(); return;
+    }
+    // When marking a new origin, un-clear that month so it shows
+    clearedMonths.delete(monthIdx);
+    pendingDate = key;
+    openModal(key);
+  }
+
+  /* ── Clear month ── only hides marks in this month, nothing else ── */
+  function clearMonth(mIdx) {
+    const prefix = `2026-${String(mIdx+1).padStart(2,'0')}-`;
+    // Remove any origins that live IN this month
+    origins = origins.filter(o => !o.date.startsWith(prefix));
+    // Mark this month as visually cleared (hides chain days from other months)
+    clearedMonths.add(mIdx);
+    save(); render();
+  }
+
+  /* ── Clear all ── */
+  function clearAll() {
+    if (!origins.length && !clearedMonths.size) return;
+    origins = [];
+    clearedMonths.clear();
+    save(); render();
+  }
+
+  /* ── Modal ── */
+  function openModal(key) {
+    document.getElementById('modalInput').value = '';
+    document.getElementById('modalDateLabel').textContent = friendlyDate(key);
+    document.getElementById('modalOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('modalInput').focus(), 80);
+  }
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    pendingDate = null;
+  }
+  function confirmModal() {
+    const val = document.getElementById('modalInput').value.trim();
+    if (!val) { document.getElementById('modalInput').focus(); return; }
+    if (pendingDate) {
+      origins.push({ date: pendingDate, label: val });
+      save();
+    }
+    closeModal();
+    render();
+  }
+
+  document.getElementById('btnConfirm').addEventListener('click', confirmModal);
+  document.getElementById('btnCancel').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+  document.getElementById('modalInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter')  confirmModal();
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* ── Render ── */
+  function render() {
+    const chainMap = buildChainMap();
+    const origMap  = buildOriginMap();
+    const grid = document.getElementById('yearGrid');
+    grid.innerHTML = '';
+
+    MONTHS.forEach((name, mIdx) => {
+      const prefix     = `2026-${String(mIdx+1).padStart(2,'0')}-`;
+      const isCleared  = clearedMonths.has(mIdx);
+      const hasOrigins = origins.some(o => o.date.startsWith(prefix));
+      // Chain days visible = chain days in this month AND month not cleared
+      const hasChainVisible = !isCleared && [...chainMap.keys()].some(k => k.startsWith(prefix));
+      const hasMarks = hasOrigins || hasChainVisible;
+
+      const card = document.createElement('div');
+      card.className = 'month-card';
+      if (todayY === 2026 && todayM === mIdx) card.id = 'current-month';
+
+      const total    = daysInMonth(mIdx);
+      const firstDay = firstDow(mIdx);
+
+      let cells = '';
+      for (let e = 0; e < firstDay; e++) cells += `<div class="day empty"></div>`;
+
+      for (let d = 1; d <= total; d++) {
+        const key      = dateKey(mIdx, d);
+        const isOrigin = origMap.has(key);
+        // Only show chain if this month hasn't been cleared
+        const isChain  = !isCleared && chainMap.has(key);
+        const isToday  = (todayY===2026 && todayM===mIdx && todayD===d);
+
+        let cls = 'day';
+        if (isOrigin) cls += ' origin';
+        if (isChain)  cls += ' chain';
+        if (isToday)  cls += ' today';
+
+        const tip = isChain
+          ? `data-tip="${[...chainMap.get(key)].join(', ')}"`
+          : '';
+
+        cells += `<div class="${cls}" ${tip} onclick="clickDay(${mIdx},${d})">${d}</div>`;
+      }
+
+      card.innerHTML = `
+        <div class="month-header">
+          <div class="month-name">${name}</div>
+          ${hasMarks
+            ? `<button class="btn-clear-month" onclick="event.stopPropagation();clearMonth(${mIdx})">✕ Limpiar mes</button>`
+            : ''}
+        </div>
+        <div class="weekdays">${WDAYS.map(w=>`<div class="wday">${w}</div>`).join('')}</div>
+        <div class="days-grid">${cells}</div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    document.getElementById('cntOrigin').textContent = origins.length;
+    document.getElementById('cntChain').textContent  =
+      [...chainMap.keys()].filter(k => {
+        const { month } = parseKey(k);
+        return !clearedMonths.has(month);
+      }).length;
+  }
+
+  function scrollToToday() {
+    const el = document.getElementById('current-month');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  render();
+  setTimeout(scrollToToday, 280);
+</script>
+</body>
+</html>

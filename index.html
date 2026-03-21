@@ -652,6 +652,9 @@
 
   render();
   setTimeout(scrollToToday, 280);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/24x72/sw.js');
+  }
 </script>
 </body>
 </html>
